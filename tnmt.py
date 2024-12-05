@@ -1,17 +1,15 @@
 import sys
-from matplotlib import pyplot as plt
 import numpy as np
 import scipy
 import sounddevice as sd
 from scipy.signal import butter, sosfiltfilt, buttord
 from scipy.signal.windows import hann
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QSlider, QLabel
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtCore import Qt
 import threading
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
-from numba import jit
+
 
 
 
