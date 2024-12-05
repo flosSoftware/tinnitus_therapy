@@ -4,16 +4,16 @@ import scipy
 import sounddevice as sd
 from scipy.signal import butter, sosfiltfilt, buttord
 from scipy.signal.windows import hann
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QSlider, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QSlider, QLabel, QComboBox
 from PyQt5.QtCore import Qt
 import threading
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 
 '''
-this is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-
+TNMT Audio Processor is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-
 made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries.
-paper reference: https://link.springer.com/content/pdf/10.1186/s12883-016-0558-7.pdf
+Research paper reference: https://link.springer.com/content/pdf/10.1186/s12883-016-0558-7.pdf
 ''' 
 
 
@@ -411,6 +411,51 @@ def update_notch_filter_frequency(value):
     
 
 # GUI application
+
+class DeviceSelectionWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        
+    def initUI(self):
+        self.setWindowTitle('Select Input and Output Devices')
+        
+        layout = QVBoxLayout()
+        
+        self.input_device_label = QLabel('Select Input Device:')
+        layout.addWidget(self.input_device_label)
+        
+        self.input_device_combo = QComboBox()
+        self.input_device_combo.addItems([device['name'] for device in sd.query_devices() if device['max_input_channels'] > 0])
+        layout.addWidget(self.input_device_combo)
+        
+        self.output_device_label = QLabel('Select Output Device:')
+        layout.addWidget(self.output_device_label)
+        
+        self.output_device_combo = QComboBox()
+        self.output_device_combo.addItems([device['name'] for device in sd.query_devices() if device['max_output_channels'] > 0])
+        layout.addWidget(self.output_device_combo)
+        
+        self.start_button = QPushButton('Start Processing')
+        self.start_button.clicked.connect(self.start_processing)
+        layout.addWidget(self.start_button)
+        
+        self.setLayout(layout)
+        
+    def start_processing(self):
+        global input_device, output_device
+        input_device = self.input_device_combo.currentIndex()
+        output_device = self.output_device_combo.currentIndex()
+        
+        self.hide()
+        self.main_window = AudioProcessingApp()
+        self.main_window.show()
+        
+        # Start audio processing in a separate thread
+        global audio_thread
+        audio_thread = threading.Thread(target=start_audio)
+        audio_thread.start()
+
 class AudioProcessingApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -488,11 +533,9 @@ class AudioProcessingApp(QWidget):
         audio_thread.join()  # Wait for the audio thread to finish
         event.accept()
 
-# Run the audio processing in a separate thread
-audio_thread = threading.Thread(target=start_audio)
-audio_thread.start()
 
 # Start the GUI application in the main thread
 app = QApplication(sys.argv)
-ex = AudioProcessingApp()
+device_selection_window = DeviceSelectionWindow()
+device_selection_window.show()
 sys.exit(app.exec_())
