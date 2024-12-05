@@ -120,7 +120,7 @@ CHANNELS = 1  # Mono audio
 
 # Define the number of bands and the frequency range
 NUM_BANDS = 12
-MAX_FREQ = 15000  # Maximum frequency to consider for equalization
+MAX_FREQ = 18000  # Maximum frequency to consider for equalization
 MIN_FREQ = 20  # Minimum frequency to consider for equalization
 nyquist = 0.5 * SAMPLING_RATE
 #band_limits = np.linspace(MIN_FREQ, MAX_FREQ, NUM_BANDS + 1)
@@ -525,7 +525,7 @@ class AudioProcessingApp(QWidget):
         self.plot_widget.setLabel('bottom', 'Frequency', units='Hz')
         self.plot_widget.setLabel('left', 'Magnitude', units='dB')
         self.plot_widget.setTitle('Average Spectrum')
-        self.plot_widget.setXRange(0, MAX_FREQ)
+        self.plot_widget.setXRange(0, 20000)
         self.plot_widget.setYRange(-50, 50)
 
     def closeEvent(self, event):
