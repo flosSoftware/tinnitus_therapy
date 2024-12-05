@@ -10,7 +10,11 @@ import threading
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 
-
+'''
+this is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-
+made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries.
+paper reference: https://link.springer.com/content/pdf/10.1186/s12883-016-0558-7.pdf
+''' 
 
 
 def custom_window(length, side_lobes_length=0.05):
