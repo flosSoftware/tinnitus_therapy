@@ -1,7 +1,6 @@
 # TNMT Audio Processor
 
-TNMT Audio Processor is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-
-made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries.
+TNMT Audio Processor is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries.
 Research paper reference: https://link.springer.com/content/pdf/10.1186/s12883-016-0558-7.pdf
 
 ## Prerequisites
@@ -21,7 +20,8 @@ Research paper reference: https://link.springer.com/content/pdf/10.1186/s12883-0
 - Run the script tnmt.py
 - Select BlackHole as the input device and your soundcard as the output device
 - Listen to the music!
+- Some latency is required to keep up the quality of the processed audio... so it's not recomended to use this program for watching videos...
 
-## What if I don't hear tinnitus?
+## What if I don't suffer from tinnitus?
 
-- Good news: this program seems to work well as an audio enhancer too! Try it on your favourite music and hear the difference. In this case you might want to disable the notch filtering via the related checkbox in the GUI.
+- This program seems to work well as an audio enhancer too! Try it on your favourite music and hear the difference. In this case you might want to disable the notch filtering via the related checkbox in the GUI.
