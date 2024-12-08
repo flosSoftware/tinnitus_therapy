@@ -21,3 +21,7 @@ Research paper reference: https://link.springer.com/content/pdf/10.1186/s12883-0
 - Run the script tnmt.py
 - Select BlackHole as the input device and your soundcard as the output device
 - Listen to the music!
+
+## What if I don't hear tinnitus?
+
+- Good news: this program seems to work well as an audio enhancer too! Try it on your favourite music and hear the difference. In this case you might want to disable the notch filtering via the related checkbox in the GUI.
