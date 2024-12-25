@@ -17,11 +17,17 @@ Research paper reference: https://link.springer.com/content/pdf/10.1186/s12883-0
     
 ## Usage
 
-- Run the script tnmt.py
+- Run the script tnmt.py with:
+  ```sh
+  python tnmt.py
 - Select BlackHole as the input device and your soundcard as the output device
 - Listen to the music!
-- Some latency is required to keep up the quality of the processed audio... so it's not recomended to use this program for watching videos...
+- Some latency is required to keep up the quality of the processed audio... so it's not recommended to use this program for watching videos...
 
 ## What if I don't suffer from tinnitus?
 
 - This program seems to work well as an audio enhancer too! Try it on your favourite music and hear the difference. In this case you might want to disable the notch filtering via the related checkbox in the GUI.
+
+## License
+
+- This program is licensed under the GPL License. See the LICENSE file for details.

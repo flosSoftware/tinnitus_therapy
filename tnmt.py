@@ -1,14 +1,3 @@
-import sys
-import numpy as np
-import scipy
-import sounddevice as sd
-from scipy.signal import butter, sosfiltfilt, buttord
-from scipy.signal.windows import hann
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QPushButton, QSlider, QLabel, QComboBox
-from PyQt5.QtCore import Qt
-import threading
-from PyQt5.QtCore import QTimer
-import pyqtgraph as pg
 
 '''
 TNMT Audio Processor is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries. 
@@ -31,6 +20,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 For any questions or suggestions, please contact the author at flos.software@gmail.com.
 ''' 
 
+import os
+import sys
+import numpy as np
+import scipy
+import sounddevice as sd
+from scipy.signal import butter, sosfiltfilt, buttord
+from scipy.signal.windows import hann
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QPushButton, QSlider, QLabel, QComboBox
+from PyQt5.QtCore import Qt
+import threading
+from PyQt5.QtCore import QTimer
+import pyqtgraph as pg
+import logging
+
+# Configure logging
+log_file_path = os.path.join(os.path.expanduser("~/Documents"), 'tnmt.log')
+logging.basicConfig(filename=log_file_path, level=logging.INFO)
 
 def custom_window(length, side_lobes_length=0.05):
     window = np.ones(length)
@@ -57,13 +63,13 @@ def get_notch_filter():
 
     notch_filter_ws = [notch_filter_wp[0] * (1-notch_filter_transition_band_pct), notch_filter_wp[1] * (1+notch_filter_transition_band_pct)]  # Wider stopband for better attenuation
     # Ensure the frequencies are within the valid range
-    print(f"Notch filter band: {[freq * nyquist for freq in notch_filter_wp]} Hz -> {[freq * nyquist for freq in notch_filter_ws]} Hz")
+    logging.info(f"Notch filter band: {[freq * nyquist for freq in notch_filter_wp]} Hz -> {[freq * nyquist for freq in notch_filter_ws]} Hz")
     if 0 < notch_filter_ws[0] < notch_filter_wp[0] < 1 and 0 < notch_filter_wp[1] < notch_filter_ws[1] < 1:
         notch_filter_N, notch_filter_Wn = buttord(notch_filter_wp, notch_filter_ws, notch_filter_passband_ripple, notch_filter_stopband_attenuation, fs=SAMPLING_RATE)
     else:
         raise ValueError("Invalid passband or stopband frequencies")
 
-    print(f"Notch filter order: {notch_filter_N}, Natural frequency: {notch_filter_Wn}")
+    logging.info(f"Notch filter order: {notch_filter_N}, Natural frequency: {notch_filter_Wn}")
 
     return butter(notch_filter_N, notch_filter_Wn, btype='bandstop', output='sos')
 
@@ -81,13 +87,13 @@ def get_edge_filters():
     edge_filter_ws = [edge_filter_wp[0] * (1-edge_filter_transition_band_pct), edge_filter_wp[1] * (1+edge_filter_transition_band_pct)]  # Wider stopband for better attenuation
     
     # Ensure the frequencies are within the valid range
-    print(f"Edge filter band: {[freq * nyquist for freq in edge_filter_wp]} Hz -> {[freq * nyquist for freq in edge_filter_ws]} Hz")
+    logging.info(f"Edge filter band: {[freq * nyquist for freq in edge_filter_wp]} Hz -> {[freq * nyquist for freq in edge_filter_ws]} Hz")
     if 0 < edge_filter_ws[0] < edge_filter_wp[0] < 1 and 0 < edge_filter_wp[1] < edge_filter_ws[1] < 1:
         edge_filter_N, edge_filter_Wn = buttord(edge_filter_wp, edge_filter_ws, edge_filter_passband_ripple, edge_filter_stopband_attenuation, fs=SAMPLING_RATE)
     else:
         raise ValueError("Invalid passband or stopband frequencies")
 
-    print(f"Edge filter order: {edge_filter_N}, Natural frequency: {edge_filter_Wn}")
+    logging.info(f"Edge filter order: {edge_filter_N}, Natural frequency: {edge_filter_Wn}")
 
     filters.append( butter(edge_filter_N, edge_filter_Wn, btype='bandpass', output='sos') )
     
@@ -96,20 +102,20 @@ def get_edge_filters():
     edge_filter_ws = [edge_filter_wp[0] * (1-edge_filter_transition_band_pct), edge_filter_wp[1] * (1+edge_filter_transition_band_pct)]  # Wider stopband for better attenuation
     
     # Ensure the frequencies are within the valid range
-    print(f"Edge filter band: {[freq * nyquist for freq in edge_filter_wp]} Hz -> {[freq * nyquist for freq in edge_filter_ws]} Hz")
+    logging.info(f"Edge filter band: {[freq * nyquist for freq in edge_filter_wp]} Hz -> {[freq * nyquist for freq in edge_filter_ws]} Hz")
     if 0 < edge_filter_ws[0] < edge_filter_wp[0] < 1 and 0 < edge_filter_wp[1] < edge_filter_ws[1] < 1:
         edge_filter_N, edge_filter_Wn = buttord(edge_filter_wp, edge_filter_ws, edge_filter_passband_ripple, edge_filter_stopband_attenuation, fs=SAMPLING_RATE)
     else:
         raise ValueError("Invalid passband or stopband frequencies")
 
-    print(f"Edge filter order: {edge_filter_N}, Natural frequency: {edge_filter_Wn}")
+    logging.info(f"Edge filter order: {edge_filter_N}, Natural frequency: {edge_filter_Wn}")
 
     filters.append( butter(edge_filter_N, edge_filter_Wn, btype='bandpass', output='sos') )
     
     return filters
 
 
-stop_flag = threading.Event()  # Flag to signal threads to stop
+#stop_flag = threading.Event()  # Flag to signal threads to stop
 
 
 processing_enabled = True
@@ -186,13 +192,13 @@ for i in range(NUM_BANDS):
         
     ws = [filter_lowcut * (1-transition_band_pct), filter_highcut * (1+transition_band_pct)]  # Wider stopband for better attenuation
     # Ensure the frequencies are within the valid range
-    print(f"Band {i}: {[freq * nyquist for freq in wp]} Hz -> {[freq * nyquist for freq in ws]} Hz")
+    logging.info(f"Band {i}: {[freq * nyquist for freq in wp]} Hz -> {[freq * nyquist for freq in ws]} Hz")
     if 0 < ws[0] < wp[0] < 1 and 0 < wp[1] < ws[1] < 1:
         N, Wn = buttord(wp, ws, passband_ripple, stopband_attenuation, fs=SAMPLING_RATE)
     else:
         raise ValueError("Invalid passband or stopband frequencies")
 
-    print(f"Filter order: {N}, Natural frequency: {Wn}")
+    logging.info(f"Filter order: {N}, Natural frequency: {Wn}")
 
     sos = butter(N, Wn, btype='band', output='sos')
     sos_filters.append(sos)
@@ -204,7 +210,7 @@ half_octave_ratio = 2 ** (half_octave_width / 2)
 notch_filter_lowcut = notch_filter_frequency / half_octave_ratio
 notch_filter_highcut = notch_filter_frequency * half_octave_ratio
 
-print(f"Notch filter band: {notch_filter_lowcut} Hz -> {notch_filter_highcut} Hz")
+logging.info(f"Notch filter band: {notch_filter_lowcut} Hz -> {notch_filter_highcut} Hz")
 
 # edge filter parameters
 edge_amplification_dbs = 10  # dB boost
@@ -226,7 +232,7 @@ edge_filters = get_edge_filters()
 spectrum_buffer = np.zeros((10, HOP_SIZE))
 
 
-def audio_callback(indata, outdata, frames, time, status):
+def process_audio(indata, outdata, frames, time, status):
     
     global lookahead_buffer, HOP_SIZE,  buffer, processed_buffer, window, lookahead_window
     global FFT_SIZE, NUM_BANDS, band_limits, lhb_filtered_bands, sos_filters, SAMPLING_RATE, CHANNELS
@@ -237,7 +243,7 @@ def audio_callback(indata, outdata, frames, time, status):
     
     
     if status:
-        print(status)
+        logging.info(status)
     
     # Extract the first column as a 1-dimensional array
     block = indata[:, :2] if stereo_processing_enabled else indata[:, 0]
@@ -368,6 +374,7 @@ def compute_average_spectrum():
     avg_spectrum = np.mean(np.abs(scipy.fft.rfft(spectrum_buffer, axis=1)), axis=0)
     return avg_spectrum
 
+'''
 # Start audio stream in a separate thread
 def start_audio():
     global input_device, output_device
@@ -377,25 +384,26 @@ def start_audio():
                        dtype='float32', callback=audio_callback,
                        device=(input_device, output_device))
     with stream:
-        print("Processing audio... Adjust sliders to change parameters.")
+        logging.info("Processing audio... Adjust sliders to change parameters.")
         while not stop_flag.is_set():
             sd.sleep(100)  # Sleep for a short period to check the stop flag
+'''
 
 # Functions to update processing states
 def toggle_notch_filter(state):
     global notch_filter_enabled
     notch_filter_enabled = state == 2
-    print(f"Notch filter enabled: {notch_filter_enabled}")
+    logging.info(f"Notch filter enabled: {notch_filter_enabled}")
     
 def toggle_processing(state):
     global processing_enabled
     processing_enabled = state == 2
-    print(f"Processing enabled: {processing_enabled}")
+    logging.info(f"Processing enabled: {processing_enabled}")
 
 def toggle_use_fft(state):
     global use_fft
     use_fft = state == 2
-    print(f"FFT equalizer enabled: {use_fft}") 
+    logging.info(f"FFT equalizer enabled: {use_fft}") 
     
     
 def update_notch_filter_params():
@@ -405,7 +413,7 @@ def update_notch_filter_params():
     notch_filter_lowcut = notch_filter_frequency / half_octave_ratio
     notch_filter_highcut = notch_filter_frequency * half_octave_ratio
     
-    print(f"Notch filter band: {notch_filter_lowcut} Hz -> {notch_filter_highcut} Hz")
+    logging.info(f"Notch filter band: {notch_filter_lowcut} Hz -> {notch_filter_highcut} Hz")
     
     low_edge_filter_lowcut = notch_filter_lowcut / edge_octave_ratio
     low_edge_filter_highcut = notch_filter_lowcut
@@ -418,7 +426,36 @@ def update_notch_filter_params():
     notch_filter = get_notch_filter()
     edge_filters = get_edge_filters()
 
-    
+class AudioThread(threading.Thread):
+    def __init__(self, input_device, output_device):
+        super().__init__()
+        self.stream = None
+        self.running = False
+        self.input_device = input_device
+        self.output_device = output_device
+
+    def run(self):
+        try:
+            self.running = True
+            self.stream = sd.Stream(callback=self.audio_callback, channels=CHANNELS, samplerate=SAMPLING_RATE, blocksize=HOP_SIZE, device=(self.input_device, self.output_device))
+            self.stream.start()
+            while self.running:
+                sd.sleep(100)
+            self.stream.stop()
+            self.stream.close()
+        except Exception as e:
+            logging.error(f"Error processing audio stream: {e}")
+
+    def stop(self):
+        self.running = False
+
+    def audio_callback(self, indata, outdata, frames, time, status):
+        try:
+            if status:
+                print(status)
+            process_audio(indata, outdata, frames, time, status)
+        except Exception as e:
+            logging.error(f"Error processing audio stream: {e}")
     
 class DeviceSelectionWindow(QWidget):
     def __init__(self):
@@ -460,14 +497,21 @@ class DeviceSelectionWindow(QWidget):
         self.main_window.show()
         
         # Start audio processing in a separate thread
+        '''
         global audio_thread
         audio_thread = threading.Thread(target=start_audio)
         audio_thread.start()
+        '''
+        
 
 class AudioProcessingApp(QWidget):
     def __init__(self):
         super().__init__()
+        self.input_device = input_device
+        self.output_device = output_device
+        self.audio_thread = AudioThread(self.input_device, self.output_device)
         self.initUI()
+        self.start_audio()
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -530,10 +574,13 @@ class AudioProcessingApp(QWidget):
         self.setWindowTitle("TNMT Audio Processor")
         self.show()
         
+    def start_audio(self):
+        self.audio_thread.start()
+        
     def update_notch_filter_frequency_label(self, value):
         global notch_filter_frequency
         notch_filter_frequency = value
-        print(f"Frequency set to: {value} Hz")
+        logging.info(f"Frequency set to: {value} Hz")
         self.notch_filter_frequency_label.setText(f"{value} Hz")
         update_notch_filter_params()
         
@@ -541,7 +588,7 @@ class AudioProcessingApp(QWidget):
         global post_gain
         post_gain = value / 10.0  # Convert slider value to gain
         self.post_gain_label.setText(f"{post_gain}")
-        print(f"Post gain set to: {post_gain}")       
+        logging.info(f"Post gain set to: {post_gain}")       
         
     def update_plot(self):
         global HOP_SIZE, SAMPLING_RATE, MAX_FREQ
@@ -557,8 +604,9 @@ class AudioProcessingApp(QWidget):
         self.plot_widget.setYRange(-50, 50)
 
     def closeEvent(self, event):
-        stop_flag.set()  # Signal the threads to stop
-        audio_thread.join()  # Wait for the audio thread to finish
+        #stop_flag.set()  # Signal the threads to stop
+        self.audio_thread.stop()
+        self.audio_thread.join()  # Wait for the audio thread to finish
         event.accept()
 
 
