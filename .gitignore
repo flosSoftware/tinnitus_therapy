@@ -6,7 +6,9 @@
 /tinn-tk
 /tinn.code-workspace
 /build
-/dist
+/dist/dmg
+/dist/TNMT
+/dist/TNMT.app
 /setup.py
 /AppIcon.icns
 /tnmt.spec

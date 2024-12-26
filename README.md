@@ -1,28 +1,27 @@
 # TNMT Audio Processor
 
-TNMT Audio Processor is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries.
+- TNMT Audio Processor is an implementation of the audio processing pipeline described in the article "Clinical trial on tonal tinnitus with tailor-made notched music training" by Pantev et al. (2016). The pipeline includes a multi-band auto equalizer, a notch filter around tinnitus frequency, and edge amplification at the notch filter boundaries.
 Research paper reference: https://link.springer.com/content/pdf/10.1186/s12883-016-0558-7.pdf
+- This app is tested and distributed only for the macOS system!
+- Some latency is required to keep up the quality of the processed audio, so it's not recommended to use this program for watching videos.
+- I haven't tested it much, but on my Mac mini it eats around 20% of CPU, which doesn't sound dramatic to me, but you are advised.
 
 ## Prerequisites
 
-- Python 3.6 or higher
-- Install required packages with:
-  ```sh
-  pip install -r requirements.txt
-- Install BlackHole virtual device for audio loopback (macOS only):
+- Install BlackHole virtual device for audio loopback (separate download):
   - Download BlackHole from https://existential.audio/blackhole/
   - Open the downloaded .pkg file and follow the installation instructions.
-  - Open the "Audio MIDI Setup" application on your Mac
-  - Locate "BlackHole 2ch" device and set it as the default output device
+  - Open the "Audio MIDI Setup" application on macOS.
+  - Locate "BlackHole 2ch" device and set it as the default output device.
     
-## Usage
+## Installation and Usage
 
-- Run the script tnmt.py with:
-  ```sh
-  python tnmt.py
-- Select BlackHole as the input device and your soundcard as the output device
-- Listen to the music!
-- Some latency is required to keep up the quality of the processed audio... so it's not recommended to use this program for watching videos...
+- Open the image file TNMT.dmg and put the TNMT app in the macOS Applications folder.
+- Run the TNMT app:
+  - Select "BlackHole 2ch" as the input device and your soundcard/sound monitors as the output device
+  - Click "Start Processing".
+  - Enjoy your music!
+
 
 ## What if I don't suffer from tinnitus?
 
