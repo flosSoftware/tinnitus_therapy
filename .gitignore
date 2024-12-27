@@ -9,6 +9,7 @@
 /dist/dmg
 /dist/TNMT
 /dist/TNMT.app
+/dist/TNMT.dmg
 /setup.py
 /AppIcon.icns
 /tnmt.spec
