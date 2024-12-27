@@ -28,6 +28,10 @@ Research paper reference: <a href="https://link.springer.com/content/pdf/10.1186
   - Allow permission to use the microphone.
   - Enjoy your music! If you want, you can disable the entire processing (EQ + filtering) or only the notch filtering. If you don't need to look at the spectrogram you can disable to save some CPU time.
   ![Another screenshot of the application](img/screen2.png)
+  
+## Disclaimer
+
+- This application is not a medical device and is not intended for the treatment of tinnitus. Use it at your own risk. Consult with a healthcare professional before using any audio processing tools for medical purposes.
 
 
 ## License
