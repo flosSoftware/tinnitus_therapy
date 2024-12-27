@@ -19,7 +19,7 @@ Research paper reference: <a href="https://link.springer.com/content/pdf/10.1186
     
 ## Installation and Usage
 
-- Download the latest release from the [Releases page](https://github.com/yourusername/yourrepository/releases).
+- Download the latest release from the [Releases page](https://github.com/flosSoftware/tinnitus_therapy/releases/download/v0.1.0-alpha/TNMT.dmg).
 - Open the image file TNMT.dmg and move the TNMT app in the macOS Applications folder.
 - Run the TNMT app:
   - Select "BlackHole 2ch" as the input device and your soundcard/sound monitors as the output device.
