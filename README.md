@@ -40,6 +40,10 @@ It receives routed audio from the soundcard of your computer (for routing audio 
 
 The program amplifies noise in the silent parts (let the prgram author know if that's bothersome).
 
+## For Windows/Linux users
+
+The python source code is avalable (requirements.txt contains dependencies to be installed). You will still need to route audio using a program like Asio4All.
+
 ## Disclaimer
 
 - This application is not a medical device and is not intended for the treatment of tinnitus. Use it at your own risk. Consult with a healthcare professional before using any audio processing tools for medical purposes.
