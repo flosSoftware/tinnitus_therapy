@@ -38,7 +38,7 @@ It receives routed audio from the soundcard of your computer (for routing audio 
 
 ## Known issues
 
-
+The program amplifies noise in the silent parts (let the prgram author know if it's bothersome).
 
 ## Disclaimer
 
