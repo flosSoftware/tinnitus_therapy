@@ -9,6 +9,13 @@ Research paper reference: <a href="https://link.springer.com/content/pdf/10.1186
 - This program is NOT highly optimized. On my Mac mini it consumes around 20% of CPU time.
 - This program seems to work quite well as an audio enhancer too! Try it on your favourite music and hear the difference. 
 
+
+## How does it work?
+
+It receives routed audio from the soundcard of your computer (for routing audio you need to install a specific program, see [Prerequisites](#prerequisites) below) and processes it:
+- first, an automatic equalizer redistributes audio energy between high and low frequency bands
+- second, a notch filter removes frequencies around your tinnitus frequency (so move the filter frequency slider to your perceived tinnitus frequency). If you don't know your tinnitus frequency just use a tone generator like the one at <a href="https://onlinesound.net/tone-generator" target="_blank">onlinesound.net</a> (the research paper mentions a more sopisticated protocol that has yet to be implemented in the program).
+
 ## Prerequisites
 
 - Install BlackHole virtual device for audio loopback (separate download):
@@ -28,7 +35,11 @@ Research paper reference: <a href="https://link.springer.com/content/pdf/10.1186
   - Allow permission to use the microphone.
   - Enjoy your music! If you want, you can disable the entire processing (EQ + filtering) or only the notch filtering. If you don't need to look at the spectrogram you can disable to save some CPU time.
   ![Another screenshot of the application](img/screen2.png)
-  
+
+## Known issues
+
+
+
 ## Disclaimer
 
 - This application is not a medical device and is not intended for the treatment of tinnitus. Use it at your own risk. Consult with a healthcare professional before using any audio processing tools for medical purposes.
