@@ -19,13 +19,15 @@ Research paper reference: <a href="https://link.springer.com/content/pdf/10.1186
     
 ## Installation and Usage
 
+- Download the latest release from the [Releases page](https://github.com/yourusername/yourrepository/releases).
 - Open the image file TNMT.dmg and move the TNMT app in the macOS Applications folder.
 - Run the TNMT app:
   - Select "BlackHole 2ch" as the input device and your soundcard/sound monitors as the output device.
-  - ![Screenshot of the application](img/screen1.png)
+  ![Screenshot of the application](img/screen1.png)
   - Click "Start Processing".
+  - Allow permission to use the microphone.
   - Enjoy your music! If you want, you can disable the entire processing (EQ + filtering) or only the notch filtering. If you don't need to look at the spectrogram you can disable to save some CPU time.
-  - ![Another screenshot of the application](img/screen2.png)
+  ![Another screenshot of the application](img/screen2.png)
 
 
 ## License
