@@ -14,7 +14,7 @@ Research paper reference: <a href="https://link.springer.com/content/pdf/10.1186
 
 It receives routed audio from the soundcard of your computer (for routing audio you need to install a specific program, see [Prerequisites](#prerequisites) below) and processes it:
 - first, an automatic equalizer redistributes audio energy between high and low frequency bands
-- second, a notch filter removes frequencies around your tinnitus frequency (so move the filter frequency slider to your perceived tinnitus frequency). If you don't know your tinnitus frequency just use a tone generator like the one at <a href="https://onlinesound.net/tone-generator" target="_blank">onlinesound.net</a> (the research paper mentions a more sopisticated protocol that has yet to be implemented in the program).
+- second, a notch filter removes frequencies around your tinnitus frequency (so move the filter frequency slider to your perceived tinnitus frequency). If you don't know your tinnitus frequency just use a tone generator like the one at <a href="https://onlinesound.net/tone-generator" target="_blank">onlinesound.net</a> and annotate the frequency at which the generated tone is masked by your tinnitus (the research paper mentions a more sopisticated protocol that has yet to be implemented in the program).
 
 ## Prerequisites
 
