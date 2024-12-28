@@ -54,8 +54,9 @@ use_fft = False
 notch_filter_enabled = True
 stereo_processing_enabled = True
 post_gain = 0.5
-notch_filter_frequency = 13400
-
+notch_filter_frequency = 13000
+edge_db_amp = 10
+eq_max_freq = 15000
 
 '''
 
@@ -167,6 +168,14 @@ class AudioProcessor:
         return filters
 
 
+    def update_eq_filters(self, min_freq, max_freq, num_bands):
+        self.num_bands = num_bands
+        self.max_freq = max_freq
+        self.min_freq = min_freq
+        
+        self.band_limits = np.logspace(np.log10(self.min_freq), np.log10(self.max_freq), self.num_bands + 1)
+        
+        self.eq_filters = self.get_eq_filters()
 
     def update_notch_edge_filters(self, notch_filter_frequency):
         
@@ -508,7 +517,7 @@ class DeviceSelectionWindow(QWidget):
         output_device = self.output_device_combo.currentIndex()
         block_size = int(self.block_size_combo.currentText())        
         
-        global audio_processor, post_gain, notch_filter_frequency, processing_enabled, notch_filter_enabled, stereo_processing_enabled
+        global audio_processor, post_gain, eq_max_freq, edge_db_amp, notch_filter_frequency, processing_enabled, notch_filter_enabled, stereo_processing_enabled
         devices = sd.query_devices()
         sampling_rate = devices[input_device]['default_samplerate']
         audio_processor = AudioProcessor(
@@ -520,9 +529,9 @@ class DeviceSelectionWindow(QWidget):
             stereo_processing_enabled=True,
             sampling_rate=sampling_rate,
             num_bands=12,
-            max_freq=18000,
+            max_freq=eq_max_freq,
             min_freq=20,
-            edge_amplification_dbs=10
+            edge_amplification_dbs=edge_db_amp
         )
         
         
@@ -545,6 +554,8 @@ class AudioProcessingApp(QWidget):
         self.start_audio()
 
     def initUI(self):
+        global processing_enabled, notch_filter_enabled, use_fft, notch_filter_frequency, eq_max_freq, edge_db_amp, post_gain, audio_processor
+        
         layout = QVBoxLayout()
         
         self.processing_checkbox = QCheckBox("Enable processing")   
@@ -574,6 +585,37 @@ class AudioProcessingApp(QWidget):
         self.notch_filter_checkbox.stateChanged.connect(self.toggle_notch_filter)
         layout.addWidget(self.notch_filter_checkbox)
         
+        # Add sliders for EQ min-max frequencies and edge dB amplification
+
+        eq_max_freq_layout = QHBoxLayout()
+        self.eq_max_freq_slider = QSlider(Qt.Horizontal)
+        self.eq_max_freq_slider.setRange(1000, 18000)
+        self.eq_max_freq_slider.setValue(eq_max_freq)
+        self.eq_max_freq_slider.setTickPosition(QSlider.TicksBelow)
+        self.eq_max_freq_slider.setTickInterval(1000)
+        self.eq_max_freq_slider.valueChanged.connect(self.update_eq_max_freq)
+        eq_max_freq_label = QLabel("EQ Max Frequency")
+        eq_max_freq_label.setFixedWidth(120)  # Set a fixed width for alignment
+        eq_max_freq_layout.addWidget(eq_max_freq_label)
+        eq_max_freq_layout.addWidget(self.eq_max_freq_slider)
+        self.eq_max_freq_label = QLabel(f"{eq_max_freq} Hz")
+        eq_max_freq_layout.addWidget(self.eq_max_freq_label)
+        layout.addLayout(eq_max_freq_layout)
+
+        edge_db_amp_layout = QHBoxLayout()
+        self.edge_db_amp_slider = QSlider(Qt.Horizontal)
+        self.edge_db_amp_slider.setRange(0, 20)
+        self.edge_db_amp_slider.setValue(edge_db_amp)
+        self.edge_db_amp_slider.setTickPosition(QSlider.TicksBelow)
+        self.edge_db_amp_slider.setTickInterval(1)
+        self.edge_db_amp_slider.valueChanged.connect(self.update_edge_db_amp)
+        edge_db_amp_label = QLabel("Edge amplification")
+        edge_db_amp_label.setFixedWidth(120)  # Set a fixed width for alignment
+        edge_db_amp_layout.addWidget(edge_db_amp_label)
+        edge_db_amp_layout.addWidget(self.edge_db_amp_slider)
+        self.edge_db_amp_label = QLabel(f"{edge_db_amp} dB")
+        edge_db_amp_layout.addWidget(self.edge_db_amp_label)
+        layout.addLayout(edge_db_amp_layout)
         
         notch_layout = QHBoxLayout()
         self.notch_filter_frequency_slider = QSlider(Qt.Horizontal)
@@ -583,7 +625,7 @@ class AudioProcessingApp(QWidget):
         self.notch_filter_frequency_slider.setTickInterval(1000)
         self.notch_filter_frequency_slider.valueChanged.connect(self.update_notch_filter_frequency_label)
         notch_label = QLabel("Filter Frequency")
-        notch_label.setFixedWidth(100)  # Set a fixed width for alignment
+        notch_label.setFixedWidth(120)  # Set a fixed width for alignment
         notch_layout.addWidget(notch_label)
         notch_layout.addWidget(self.notch_filter_frequency_slider)
         self.notch_filter_frequency_label = QLabel(f"{notch_filter_frequency} Hz")
@@ -598,7 +640,7 @@ class AudioProcessingApp(QWidget):
         self.post_gain_slider.setTickInterval(1)
         self.post_gain_slider.valueChanged.connect(self.update_post_gain_label)
         post_gain_label = QLabel("Post Gain")
-        post_gain_label.setFixedWidth(100)  # Set a fixed width for alignment
+        post_gain_label.setFixedWidth(120)  # Set a fixed width for alignment
         post_gain_layout.addWidget(post_gain_label)
         post_gain_layout.addWidget(self.post_gain_slider)
         self.post_gain_label = QLabel(f"{post_gain}")
@@ -631,6 +673,19 @@ class AudioProcessingApp(QWidget):
         processing_enabled = state == 2
         logging.info(f"Processing enabled: {processing_enabled}")
         audio_processor.processing_enabled = processing_enabled
+        
+    def update_eq_max_freq(self, value):
+        self.eq_max_freq_label.setText(f'{value} Hz')
+        logging.info(f"Max frequency set to: {value} Hz")
+        global eq_max_freq, audio_processor       
+        audio_processor.update_eq_filters(audio_processor.min_freq, value, audio_processor.num_bands)
+        
+
+    def update_edge_db_amp(self, value):
+        global edge_db_amp, audio_processor
+        self.edge_db_amp_label.setText(f'{value} dB')
+        logging.info(f"Edge amplification set to: {value} dB")
+        audio_processor.edge_amplification_dbs = value
         
     def update_notch_filter_frequency_label(self, value):
         global notch_filter_frequency, audio_processor
